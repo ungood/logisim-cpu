@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+java -jar ~/Applications/logisim.jar cpu.circ -tty speed -load $1
