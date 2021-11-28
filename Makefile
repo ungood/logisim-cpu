@@ -1,20 +1,51 @@
+ifeq ($(VIRTUAL_ENV),)
+  $(error VIRTUAL_ENV is not set! Did you forget to activate it?)
+endif
+
 .PHONY: clean
 
-source_dir := ./assembly
-output_dir := ./binaries
-compiler_dir := ./compiler
+compiler_dir  := ./compiler
+diagram_dir   := ./diagrams
+microcode_dir := ./microcode
+programs_dir  := ./programs
 
-sources := $(wildcard $(source_dir)/*.asm)
-output := $(patsubst %.asm,%.raw,$(subst $(source_dir),$(output_dir),$(sources)))
+compiler := $(VIRTUAL_ENV)/bin/sappy
+
+assembly_files := $(wildcard $(programs_dir)/*.asm)
+object_files := $(patsubst %.asm,%.o,$(subst $(programs_dir),$(programs_dir),$(assembly_files)))
+binary_files := $(patsubst %.asm,%.raw,$(subst $(programs_dir),$(programs_dir),$(assembly_files)))
 compilers := $(wildcard $(compiler_dir)/*.py)
 
-all: microcode.raw $(output)
+all: microcode diagrams binaries
 
-microcode.raw: $(compilers)
-	$(compiler_dir)/create_microcode.py > microcode.raw
+$(compiler): $(compilers)
+	@ echo "Installing the 'sappy' compiler."
+	pip install -e compiler
 
-$(output_dir)/%.raw: $(source_dir)/%.asm $(compilers)
-	$(info Assembling $< to $@\n)
-	$(compiler_dir)/assembler.py $< > $@
-#	@ mkdir -p $(abspath $(dir $@))
-#	@ j2 $< > $@
+microcode: $(microcode_dir)/SAP-1.raw $(microcode_dir)/SAP-1b.raw
+
+$(microcode_dir)/%.raw: $(compiler)
+	@ echo "\nWriting microcode for $*:"
+	$(compiler) write-microcode --arch $* $@
+
+diagrams: $(diagram_dir)/object-code.html $(diagram_dir)/assembly.html
+
+$(diagram_dir)/object-code.html: $(compilers)
+	@ echo "\nWriting object code diagram to $@:"
+	$(compiler) write-object-code-diagram $@
+
+$(diagram_dir)/assembly.html: $(compilers)
+	@ echo "\nWriting assembly diagram to $@:"
+	$(compiler) write-assembly-diagram $@
+
+binaries: $(binary_files)
+
+$(programs_dir)/%.raw: $(programs_dir)/%.o $(compilers)
+	@ echo "\nLinking $< to $@:"
+	$(compiler) link $< $@
+
+objects: $(object_files)
+
+$(programs_dir)/%.o: $(programs_dir)/%.asm $(compilers)
+	@ echo "\nAssembling $< to $@:"
+	$(compiler) assemble $< $@

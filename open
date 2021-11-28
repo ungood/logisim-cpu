@@ -1,2 +1,14 @@
 #!/usr/bin/env bash
-java -jar ~/Applications/logisim.jar cpu.circ &
+if [ $# -eq 0 ]; then
+    echo "No arguments supplied!"
+    exit 1
+fi
+
+circuit="cpus/$1.circ"
+
+if [ ! -f $circuit ]; then
+    echo "${circuit} does not exist!"
+    exit 1
+fi
+
+java -jar ~/Applications/logisim.jar cpus/$1.circ &
