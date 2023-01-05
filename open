@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
+if [ ! -f "${LOGISIM_PATH}" ]; then
+    echo "\$LOGISIM_PATH is either not set or does not exist.  Please set this environment variable."
+    exit 1
+fi
+
 if [ $# -eq 0 ]; then
     echo "No arguments supplied!"
-    exit 1
+    exit 2
 fi
 
 circuit="cpus/$1.circ"
 
 if [ ! -f $circuit ]; then
     echo "${circuit} does not exist!"
-    exit 1
+    exit 3
 fi
 
-java -jar ~/Applications/logisim.jar cpus/$1.circ &
+java -jar $LOGISIM_PATH cpus/$1.circ &

@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "logisim-cpu"
+version = "1b"
+description = "Logisim CPUs based on the SAP series of CPUs"
+authors = ["Jason Walker <ungood@onetrue.name>"]
+readme = "README.md"
+packages = [{include = "compiler"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+logzero = "^1.7.0"
+pyparsing = {extras = ["diagrams"], version = "^3.0.9"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

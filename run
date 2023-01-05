@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
-#!/usr/bin/env bash
+if [ ! -f "$LOGISIM_PATH" ]; then
+    echo "\$LOGISIM_PATH is either not set or does not exist.  Please set this environment variable."
+    exit 1
+fi
+
 if [ $# -lt 2 ]; then
     echo "Not enough arguments supplied!"
     exit 1
@@ -19,4 +23,5 @@ if [ ! -f $program ]; then
     exit 1
 fi
 
-java -jar ~/Applications/logisim.jar "${circuit}" -tty speed -load "${program}"
+#TODO: Find logisim from somewhere
+java -jar "${LOGISIM_PATH} "${circuit}" -tty speed -load "${program}"
